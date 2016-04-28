@@ -380,6 +380,22 @@ module Precious
       end
     end
 
+    get '/changes.json' do
+      @wiki = wiki_new
+      @commits = @wiki.latest_changes
+      changes = []
+      @commits.each { |c|
+        changes << {
+          author: c.author.name,
+          page: c.stats.files.map { |f| f.first }.join(', '),
+          type: 'updated',
+          timestamp: c.authored_date,
+          lines_changed: c.stats.total
+        }
+      }
+      changes.to_json
+    end
+
     get '/latest_changes' do
       @wiki = wiki_new
       max_count = settings.wiki_options.fetch(:latest_changes_count, 10)
